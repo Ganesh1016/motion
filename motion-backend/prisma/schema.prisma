@@ -1,0 +1,107 @@
+// Prisma schema for Motion Task Management Service
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model - represents authenticated users
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String   // hashed with bcrypt
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  // Relations
+  projects      Project[]
+  refreshTokens RefreshToken[]
+  resetTokens   PasswordResetToken[]
+
+  @@index([email])
+  @@map("users")
+}
+
+// RefreshToken model - for JWT refresh token rotation and revocation
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique // hashed refresh token
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  revoked   Boolean  @default(false)
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@map("refresh_tokens")
+}
+
+// PasswordResetToken model - for forgot password flow
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  token     String   @unique // hashed reset token
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  used      Boolean  @default(false)
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@map("password_reset_tokens")
+}
+
+// Project model - belongs to exactly one User
+model Project {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  userId      String   // Owner of the project
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  // Relations
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tasks Task[]
+
+  @@index([userId])
+  @@map("projects")
+}
+
+// TaskStatus enum - restricted allowed values for task status
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+  BLOCKED
+}
+
+// Task model - belongs to exactly one Project
+model Task {
+  id          String     @id @default(uuid())
+  title       String
+  description String?
+  status      TaskStatus @default(TODO)
+  projectId   String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  deletedAt   DateTime?
+
+  // Relations
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([projectId, status]) // Composite index for filtering tasks by project and status
+  @@map("tasks")
+}

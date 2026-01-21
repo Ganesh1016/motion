@@ -1,0 +1,42 @@
+@import url('https://fonts.googleapis.com/css?family=Google+Sans:regular,500,600,700,italic,500italic,600italic,700italic');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Google Sans", sans-serif;
+
+  --color-background: #fafafa;
+  --color-foreground: #18181b;
+  --color-card: #ffffff;
+  --color-card-foreground: #18181b;
+  --color-muted: #f4f4f5;
+  --color-muted-foreground: #71717a;
+  --color-border: #e4e4e7;
+  --color-input: #e4e4e7;
+  --color-primary: #18181b;
+  --color-primary-foreground: #fafafa;
+  --color-secondary: #f4f4f5;
+  --color-secondary-foreground: #18181b;
+  --color-accent: #f4f4f5;
+  --color-accent-foreground: #18181b;
+  --color-ring: #a1a1aa;
+
+  --radius-lg: 0.75rem;
+  --radius-md: 0.625rem;
+  --radius-sm: 0.5rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
