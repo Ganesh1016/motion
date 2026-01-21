@@ -24,6 +24,25 @@ async function startServer() {
       console.log("=================================");
     });
 
+    const keepAliveUrl = config.keepAlive.url;
+    if (keepAliveUrl) {
+      const ping = async () => {
+        try {
+          const response = await fetch(keepAliveUrl, { method: "GET" });
+          if (!response.ok) {
+            console.warn(
+              `Keep-alive ping failed: ${response.status} ${response.statusText}`,
+            );
+          }
+        } catch (error) {
+          console.warn("Keep-alive ping error:", error);
+        }
+      };
+
+      ping();
+      setInterval(ping, config.keepAlive.intervalMs);
+    }
+
     // Graceful shutdown
     const gracefulShutdown = async (signal: string) => {
       console.log(`\n${signal} received. Starting graceful shutdown...`);

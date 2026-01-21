@@ -26,7 +26,10 @@ const config = {
 
     // CORS
     cors: {
-        origin: process.env.CORS_ORIGIN?.split(',') || ['http://localhost:3000'],
+        origin: process.env.CORS_ORIGIN?.split(',') || [
+            'http://localhost:3000',
+            'https://motion-ten-liart.vercel.app',
+        ],
     },
 
     // Rate Limiting
@@ -44,6 +47,16 @@ const config = {
     // Password Reset
     passwordReset: {
         tokenExpiryMinutes: parseInt(process.env.RESET_TOKEN_EXPIRY_MINUTES || '30', 10),
+    },
+
+    // Keep Alive
+    keepAlive: {
+        url:
+            process.env.KEEP_ALIVE_URL ||
+            (process.env.NODE_ENV === 'production'
+                ? 'https://motion-vfo5.onrender.com/health'
+                : ''),
+        intervalMs: parseInt(process.env.KEEP_ALIVE_INTERVAL_MS || '600000', 10), // 10 minutes
     },
 } as const;
 
