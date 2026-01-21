@@ -24,7 +24,7 @@ export const hashUtils = {
     },
 
     /**
-     * Hash a token (for refresh tokens and reset tokens) using SHA256
+     * Hash a token (for refresh tokens) using SHA256
      */
     hashToken: (token: string): string => {
         return crypto.createHash('sha256').update(token).digest('hex');
@@ -70,18 +70,4 @@ export const jwtUtils = {
     },
 };
 
-/**
- * Generate a secure random token for password reset
- */
-export function generateResetToken(): string {
-    return crypto.randomBytes(32).toString('hex');
-}
-
-/**
- * Calculate expiry date for reset tokens
- */
-export function getResetTokenExpiry(): Date {
-    const expiryDate = new Date();
-    expiryDate.setMinutes(expiryDate.getMinutes() + config.passwordReset.tokenExpiryMinutes);
-    return expiryDate;
-}
+ 

@@ -44,14 +44,6 @@ const config = {
     max: parseInt(process.env.AUTH_RATE_LIMIT_MAX_REQUESTS || "5", 10),
   },
 
-  // Password Reset
-  passwordReset: {
-    tokenExpiryMinutes: parseInt(
-      process.env.RESET_TOKEN_EXPIRY_MINUTES || "30",
-      10,
-    ),
-  },
-
   // Keep Alive
   keepAlive: {
     url:

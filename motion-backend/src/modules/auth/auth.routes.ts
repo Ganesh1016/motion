@@ -30,8 +30,6 @@ router.post('/register', authLimiter, authController.register.bind(authControlle
 router.post('/login', authLimiter, authController.login.bind(authController));
 router.post('/refresh', authLimiter, authController.refreshToken.bind(authController));
 router.post('/logout', authController.logout.bind(authController));
-router.post('/forgot-password', authLimiter, authController.forgotPassword.bind(authController));
-router.post('/reset-password', authLimiter, authController.resetPassword.bind(authController));
 
 // Protected routes (requires authentication)
 router.get('/me', authenticate, authController.getCurrentUser.bind(authController));

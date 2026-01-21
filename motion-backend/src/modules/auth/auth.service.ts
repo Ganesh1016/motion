@@ -1,15 +1,12 @@
 import prisma from '../../db/prisma';
 import {
     hashUtils,
-    jwtUtils,
-    generateResetToken,
-    getResetTokenExpiry
+    jwtUtils
 } from '../../utils/auth';
 import { ErrorFactory } from '../../utils/errors';
 import {
     RegisterInput,
-    LoginInput,
-    ResetPasswordInput
+    LoginInput
 } from './auth.validation';
 
 /**
@@ -252,101 +249,6 @@ export class AuthService {
         return safeUser;
     }
 
-    /**
-     * Request password reset - generates reset token and logs it
-     */
-    async forgotPassword(email: string) {
-        // Find user by email
-        const user = await prisma.user.findUnique({
-            where: { email },
-        });
-
-        // Security: Don't reveal whether email exists
-        // Always return success, but only send email if user exists
-        if (!user) {
-            // Return generic success to prevent email enumeration
-            return {
-                message: 'If an account exists with this email, a password reset link will be sent'
-            };
-        }
-
-        // Generate reset token
-        const resetToken = generateResetToken();
-        const hashedToken = hashUtils.hashToken(resetToken);
-        const expiresAt = getResetTokenExpiry();
-
-        // Store hashed token in database
-        await prisma.passwordResetToken.create({
-            data: {
-                token: hashedToken,
-                userId: user.id,
-                expiresAt,
-            },
-        });
-
-        // For local development, log the reset link to console
-        // In production, you would send an email here
-        const resetLink = `http://localhost:3000/reset-password?token=${resetToken}`;
-        console.log('\n=================================');
-        console.log('PASSWORD RESET REQUESTED');
-        console.log('=================================');
-        console.log(`Email: ${email}`);
-        console.log(`Reset Token: ${resetToken}`);
-        console.log(`Reset Link: ${resetLink}`);
-        console.log(`Expires At: ${expiresAt.toISOString()}`);
-        console.log('=================================\n');
-
-        return {
-            message: 'If an account exists with this email, a password reset link will be sent'
-        };
-    }
-
-    /**
-     * Reset password using reset token
-     */
-    async resetPassword(data: ResetPasswordInput) {
-        const { token, newPassword } = data;
-
-        // Hash the token to find it in database
-        const hashedToken = hashUtils.hashToken(token);
-
-        // Find reset token
-        const resetToken = await prisma.passwordResetToken.findUnique({
-            where: { token: hashedToken },
-            include: { user: true },
-        });
-
-        if (!resetToken) {
-            throw ErrorFactory.badRequest('Invalid or expired reset token');
-        }
-
-        // Check if token has been used
-        if (resetToken.used) {
-            throw ErrorFactory.badRequest('Reset token has already been used');
-        }
-
-        // Check if token is expired
-        if (resetToken.expiresAt < new Date()) {
-            throw ErrorFactory.badRequest('Reset token has expired');
-        }
-
-        // Hash new password
-        const hashedPassword = await hashUtils.hashPassword(newPassword);
-
-        // Update user password and mark token as used
-        await prisma.$transaction([
-            prisma.user.update({
-                where: { id: resetToken.userId },
-                data: { password: hashedPassword },
-            }),
-            prisma.passwordResetToken.update({
-                where: { id: resetToken.id },
-                data: { used: true },
-            }),
-        ]);
-
-        return { message: 'Password reset successful' };
-    }
 }
 
 export const authService = new AuthService();

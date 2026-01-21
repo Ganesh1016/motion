@@ -4,7 +4,7 @@ A production-lean, locally runnable REST API backend for task management built w
 
 ## Features
 
-- **Custom Authentication**: JWT-based auth with refresh tokens and password reset
+- **Custom Authentication**: JWT-based auth with refresh tokens
 - **Projects Management**: CRUD operations for user projects
 - **Tasks Management**: Full task lifecycle with status tracking
 - **Security**: bcrypt password hashing, helmet, rate limiting, CORS
@@ -130,7 +130,6 @@ npm run prisma:migrate
 This will create the following tables:
 - `users` - User accounts
 - `refresh_tokens` - JWT refresh token storage
-- `password_reset_tokens` - Password reset tokens
 - `projects` - User projects
 - `tasks` - Project tasks
 
@@ -189,14 +188,6 @@ Expected response:
 - `revoked` (boolean)
 - `createdAt`
 
-### PasswordResetToken
-- `id` (UUID, primary key)
-- `token` (hashed, unique, indexed)
-- `userId` (foreign key → User)
-- `expiresAt` (DateTime)
-- `used` (boolean)
-- `createdAt`
-
 ### Project
 - `id` (UUID, primary key)
 - `name` (required)
@@ -220,7 +211,6 @@ Expected response:
 - User → Projects (one-to-many)
 - Project → Tasks (one-to-many, soft delete cascade)
 - User → RefreshTokens (one-to-many, cascade delete)
-- User → PasswordResetTokens (one-to-many, cascade delete)
 
 ## API Documentation
 
@@ -272,14 +262,7 @@ See [API_CONTRACTS.md](./API_CONTRACTS.md) for complete API documentation includ
 
 - **JWT with refresh tokens**: Stateless access tokens for API calls, refresh tokens for renewal
 - **Token rotation**: New refresh token issued on each refresh to detect token theft
-- **Hashed storage**: Refresh and reset tokens are hashed before storage
-
-### Password Reset Flow
-
-- **One-time tokens**: Reset tokens can only be used once
-- **Expiry**: 30-minute expiry by default
-- **No email enumeration**: Generic success message regardless of email existence
-- **Console logging**: For local development, reset links are logged to console
+- **Hashed storage**: Refresh tokens are hashed before storage
 
 ### IDOR Prevention
 
@@ -304,15 +287,13 @@ See [API_CONTRACTS.md](./API_CONTRACTS.md) for complete API documentation includ
 
 1. **Single-user projects**: Each project has exactly one owner (no collaboration)
 2. **No pagination**: Lists return all items (can add cursor/offset pagination)
-3. **Console logging for reset**: Email service not implemented (would use SendGrid, etc. in production)
-4. **Client-side logout for access tokens**: Access tokens cannot be revoked server-side
+3. **Client-side logout for access tokens**: Access tokens cannot be revoked server-side
 
 ## What Would Be Improved with More Time
 
 ### High Priority
 
 1. **Email Service Integration**
-   - SendGrid/Resend for password reset emails
    - Email verification on signup
    - Welcome emails
 

@@ -21,7 +21,6 @@ model User {
   // Relations
   projects      Project[]
   refreshTokens RefreshToken[]
-  resetTokens   PasswordResetToken[]
 
   @@index([email])
   @@map("users")
@@ -42,23 +41,6 @@ model RefreshToken {
   @@index([userId])
   @@index([token])
   @@map("refresh_tokens")
-}
-
-// PasswordResetToken model - for forgot password flow
-model PasswordResetToken {
-  id        String   @id @default(uuid())
-  token     String   @unique // hashed reset token
-  userId    String
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-  used      Boolean  @default(false)
-
-  // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([token])
-  @@map("password_reset_tokens")
 }
 
 // Project model - belongs to exactly one User

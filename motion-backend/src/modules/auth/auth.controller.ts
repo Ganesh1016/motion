@@ -3,9 +3,7 @@ import { authService } from './auth.service';
 import {
     registerSchema,
     loginSchema,
-    refreshTokenSchema,
-    forgotPasswordSchema,
-    resetPasswordSchema
+    refreshTokenSchema
 } from './auth.validation';
 import { AuthRequest } from '../../middleware/auth';
 import { SuccessResponse } from '../../utils/errors';
@@ -129,49 +127,6 @@ export class AuthController {
         }
     }
 
-    /**
-     * Request password reset
-     * POST /auth/forgot-password
-     */
-    async forgotPassword(req: Request, res: Response, next: NextFunction) {
-        try {
-            // Validate request body
-            const validatedData = forgotPasswordSchema.parse(req.body);
-
-            // Call service
-            const result = await authService.forgotPassword(validatedData.email);
-
-            // Send response
-            res.status(200).json({
-                success: true,
-                data: result,
-            } as SuccessResponse);
-        } catch (error) {
-            next(error);
-        }
-    }
-
-    /**
-     * Reset password
-     * POST /auth/reset-password
-     */
-    async resetPassword(req: Request, res: Response, next: NextFunction) {
-        try {
-            // Validate request body
-            const validatedData = resetPasswordSchema.parse(req.body);
-
-            // Call service
-            const result = await authService.resetPassword(validatedData);
-
-            // Send response
-            res.status(200).json({
-                success: true,
-                data: result,
-            } as SuccessResponse);
-        } catch (error) {
-            next(error);
-        }
-    }
 }
 
 export const authController = new AuthController();

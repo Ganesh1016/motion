@@ -329,107 +329,6 @@ Authorization: Bearer <access_token>
 
 ---
 
-### 6. Forgot Password
-
-Request a password reset token.
-
-**Endpoint**: `POST /auth/forgot-password`
-
-**Rate Limit**: 5 requests per 15 minutes
-
-**Request Body**:
-
-```json
-{
-  "email": "user@example.com"
-}
-```
-
-**Success Response** (200 OK):
-
-```json
-{
-  "success": true,
-  "data": {
-    "message": "If an account exists with this email, a password reset link will be sent"
-  }
-}
-```
-
-**Note**: 
-- Generic success message prevents email enumeration
-- In local development, reset token is logged to console
-- In production, would be sent via email
-
-**Console Output (Development)**:
-
-```
-=================================
-PASSWORD RESET REQUESTED
-=================================
-Email: user@example.com
-Reset Token: 64-character-hex-token
-Reset Link: http://localhost:3000/reset-password?token=64-character-hex-token
-Expires At: 2026-01-20T13:15:28.000Z
-=================================
-```
-
----
-
-### 7. Reset Password
-
-Reset password using a reset token.
-
-**Endpoint**: `POST /auth/reset-password`
-
-**Rate Limit**: 5 requests per 15 minutes
-
-**Request Body**:
-
-```json
-{
-  "token": "64-character-hex-token",
-  "newPassword": "NewSecurePass123"
-}
-```
-
-**Password Requirements**: Same as registration
-
-**Success Response** (200 OK):
-
-```json
-{
-  "success": true,
-  "data": {
-    "message": "Password reset successful"
-  }
-}
-```
-
-**Error Responses**:
-
-```json
-{
-  "success": false,
-  "error": {
-    "message": "Invalid or expired reset token",
-    "statusCode": 400
-  }
-}
-```
-
-```json
-{
-  "success": false,
-  "error": {
-    "message": "Reset token has already been used",
-    "statusCode": 400
-  }
-}
-```
-
----
-
 ## Project Endpoints
 
 All project endpoints require authentication.
@@ -1156,8 +1055,7 @@ RateLimit-Reset: 1642684800
 2. **Password Security**: Passwords are hashed with bcrypt (12 salt rounds)
 3. **Token Storage**: Store refresh tokens securely (httpOnly cookies recommended for web apps)
 4. **Client-Side Logout**: Access tokens cannot be revoked; client must discard them
-5. **Email Enumeration**: Forgot password doesn't reveal if email exists
-6. **Soft Deletes**: Deleting a project marks the project and its tasks as deleted
+5. **Soft Deletes**: Deleting a project marks the project and its tasks as deleted
 
 ---
 
